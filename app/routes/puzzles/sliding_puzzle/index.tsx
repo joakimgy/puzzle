@@ -1,11 +1,12 @@
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import type {
+import { Form, Link, useLoaderData, useSubmit } from "@remix-run/react";
+import {
   ActionArgs,
   LoaderArgs,
   LoaderFunction,
+  redirect,
 } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getPuzzle } from "~/models/square.server";
+import { getPuzzle, updateSquare } from "~/models/square.server";
 
 import { useUser } from "~/utils";
 import SlidingPuzzle from "./puzzle";
@@ -20,7 +21,28 @@ export const loader: LoaderFunction = async ({ request }: LoaderArgs) => {
 };
 
 export async function action({ request }: ActionArgs) {
-  console.log(request.formData());
+  const formData = await request.formData();
+  console.log("Submitted: ", formData);
+
+  const id = "cle69skaj0006vprxotuctmby";
+
+  const puzzle = await getPuzzle();
+  const emptyPos = puzzle.find((sq) => sq.empty);
+  const clickedPos = puzzle.find((sq) => sq.id === id);
+
+  if (!emptyPos || !clickedPos) return null;
+  await updateSquare({
+    id: emptyPos.id,
+    x: clickedPos.position.x,
+    y: clickedPos.position.y,
+  });
+  await updateSquare({
+    id,
+    x: emptyPos.position.x,
+    y: emptyPos.position.y,
+  });
+
+  return redirect(`/puzzles/sliding_puzzle`);
 }
 
 export default function SlidingPuzzlePage() {
