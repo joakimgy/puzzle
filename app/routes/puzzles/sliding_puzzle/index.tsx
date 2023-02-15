@@ -1,10 +1,31 @@
-import { Form, Link, useCatch } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import type {
+  ActionArgs,
+  LoaderArgs,
+  LoaderFunction,
+} from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+import { getPuzzle } from "~/models/square.server";
 
 import { useUser } from "~/utils";
 import SlidingPuzzle from "./puzzle";
+import type { Square } from "./utils";
+
+type LoaderData = {
+  puzzle: Square[];
+};
+export const loader: LoaderFunction = async ({ request }: LoaderArgs) => {
+  const puzzle = await getPuzzle();
+  return json({ puzzle });
+};
+
+export async function action({ request }: ActionArgs) {
+  console.log(request.formData());
+}
 
 export default function SlidingPuzzlePage() {
   const user = useUser();
+  const { puzzle } = useLoaderData() as LoaderData;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -25,7 +46,7 @@ export default function SlidingPuzzlePage() {
 
       <main className="flex h-full bg-white">
         <div className="container mx-auto grid items-center justify-items-center bg-blue-200">
-          <SlidingPuzzle />
+          <SlidingPuzzle puzzle={puzzle} />
         </div>
       </main>
     </div>

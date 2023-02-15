@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { initPuzzle } from "~/routes/puzzles/sliding_puzzle/utils";
 
 const prisma = new PrismaClient();
 
@@ -38,6 +39,18 @@ async function seed() {
       body: "Hello, world!",
       userId: user.id,
     },
+  });
+
+  initPuzzle().map(async (sq) => {
+    await prisma.puzzleSquare.create({
+      data: {
+        x: sq.position.x,
+        y: sq.position.y,
+        empty: sq.empty,
+        color: sq.color,
+        userId: user.id,
+      },
+    });
   });
 
   console.log(`Database has been seeded. 🌱`);

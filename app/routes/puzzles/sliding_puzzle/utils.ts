@@ -1,12 +1,15 @@
-const size = 3;
-export function initPuzzle(): Square[] {
-  console.log("Init puzzle");
-  return Array.from(Array(size * size).keys()).map((index) => ({
-    position: { x: index % size, y: Math.floor(index / size) },
-    id: index,
-    color: colors[index],
-    empty: index === size,
-  }));
+export const SLIDER_PUZZLE_SIZE = 3;
+export function initPuzzle(): Omit<Square, "id">[] {
+  return Array.from(Array(SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE).keys()).map(
+    (index) => ({
+      position: {
+        x: index % SLIDER_PUZZLE_SIZE,
+        y: Math.floor(index / SLIDER_PUZZLE_SIZE),
+      },
+      color: colors[index],
+      empty: index === SLIDER_PUZZLE_SIZE,
+    })
+  );
 }
 
 export function isAdjacentToEmpty(square: Square, puzzle: Square[]) {
@@ -40,21 +43,22 @@ export function moveSquare(puzzle: Square[], square: Square): Square[] {
   }
   const squareIndex = puzzle.findIndex((p) => p.id === square.id);
   const emptySquare = puzzle[emptySquareIndex];
-  console.log({ squareIndex, emptySquareIndex });
   let newPuzzle = puzzle;
 
   newPuzzle[squareIndex] = { ...square, position: emptySquare.position };
   newPuzzle[emptySquareIndex] = { ...emptySquare, position: square.position };
   newPuzzle.sort(
     (a, b) =>
-      a.position.y * size + a.position.x - (b.position.y * size + b.position.x)
+      a.position.y * SLIDER_PUZZLE_SIZE +
+      a.position.x -
+      (b.position.y * SLIDER_PUZZLE_SIZE + b.position.x)
   );
   return newPuzzle;
 }
 
 export type Square = {
   position: { x: number; y: number };
-  id: number;
+  id: string;
   color: string;
   empty: boolean;
 };

@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { initPuzzle, isAdjacentToEmpty, moveSquare, Square } from "./utils";
 
-const SlidingPuzzle = () => {
-  const [puzzle, setPuzzle] = useState<Square[]>(() => initPuzzle());
-
+const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   function move(square: Square) {
-    console.log("Current puzzle: ", JSON.stringify(puzzle));
     const isAdjacent = isAdjacentToEmpty(square, puzzle);
     if (!isAdjacent) return;
     const newPuzzle = moveSquare(puzzle, square);
-    console.log("New: ", JSON.stringify(newPuzzle));
-    setPuzzle(newPuzzle);
+    //setPuzzle(newPuzzle);
   }
-
-  console.log("rerender");
 
   return (
     <div className="">
@@ -23,8 +17,6 @@ const SlidingPuzzle = () => {
             type="button"
             key={Math.random()}
             onClick={() => {
-              console.log("onClick");
-
               move(square);
             }}
           >

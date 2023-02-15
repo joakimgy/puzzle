@@ -16,6 +16,7 @@ model User {
 
   password Password?
   notes    Note[]
+  squares  PuzzleSquare[]
 }
 
 model Password {
@@ -36,3 +37,18 @@ model Note {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
 }
+
+model PuzzleSquare {
+  id    String @id @default(cuid())
+  x     Int
+  y     Int
+  empty Boolean
+  color String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+}
+
