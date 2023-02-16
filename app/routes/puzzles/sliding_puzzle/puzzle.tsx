@@ -1,6 +1,6 @@
-import { Form, useSubmit } from "@remix-run/react";
-import React, { FormEventHandler, useEffect, useState } from "react";
-import { initPuzzle, isAdjacentToEmpty, moveSquare, Square } from "./utils";
+import { useSubmit } from "@remix-run/react";
+import type { Square } from "./utils";
+import { isAdjacentToEmpty } from "./utils";
 
 const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   const submit = useSubmit();
@@ -8,17 +8,16 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   function move(square: Square) {
     const isAdjacent = isAdjacentToEmpty(square, puzzle);
     if (!isAdjacent) return;
-    const newPuzzle = moveSquare(puzzle, square);
-    console.log("submitting");
-    submit(null, { method: "post", action: "/puzzles/sliding_puzzle" });
-    //setPuzzle(newPuzzle);
+    let formData = new FormData();
+    formData.append("square_id", square.id);
+    submit(formData, { method: "post", action: "/puzzles/sliding_puzzle" });
   }
 
   return (
     <div className="border-1 grid grid-cols-3 grid-rows-3 gap-4">
       {puzzle.map((square) => (
         <button
-          key={Math.random()}
+          key={square.id}
           onClick={() => {
             move(square);
           }}
