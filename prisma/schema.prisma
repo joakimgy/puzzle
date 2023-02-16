@@ -45,6 +45,9 @@ model PuzzleSquare {
   empty Boolean
   color String
 
+  correctX Int
+  correctY Int
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

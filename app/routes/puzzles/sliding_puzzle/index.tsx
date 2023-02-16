@@ -6,7 +6,12 @@ import type {
 } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getPuzzle, updateSquare, getSquare } from "~/models/square.server";
+import {
+  getPuzzle,
+  updateSquare,
+  getSquare,
+  isPuzzleCompleted,
+} from "~/models/square.server";
 import { requireUserId } from "~/session.server";
 
 import { useUser } from "~/utils";
@@ -16,11 +21,13 @@ import { isAdjacentToEmpty } from "./utils";
 
 type LoaderData = {
   puzzle: Square[];
+  isCompleted: boolean;
 };
 export const loader: LoaderFunction = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const puzzle = await getPuzzle({ userId });
-  return json({ puzzle });
+  const isCompleted = await isPuzzleCompleted({ userId });
+  return json({ puzzle, isCompleted });
 };
 
 export async function action({ request }: ActionArgs) {
@@ -62,7 +69,7 @@ export async function action({ request }: ActionArgs) {
 
 export default function SlidingPuzzlePage() {
   const user = useUser();
-  const { puzzle } = useLoaderData() as LoaderData;
+  const { puzzle, isCompleted } = useLoaderData() as LoaderData;
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -91,7 +98,16 @@ export default function SlidingPuzzlePage() {
 
       <main className="flex h-full bg-white">
         <div className="container mx-auto grid items-center justify-items-center bg-blue-200">
-          <SlidingPuzzle puzzle={puzzle} />
+          <div
+            className={`justify-items-center border-4 ${
+              isCompleted ? "border-green-600" : "border-black"
+            } p-4`}
+          >
+            {isCompleted && (
+              <p className="pb-4 text-center text-lg font-bold">Good job!!!</p>
+            )}
+            <SlidingPuzzle puzzle={puzzle} />
+          </div>
         </div>
       </main>
     </div>

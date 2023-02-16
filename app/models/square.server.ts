@@ -7,6 +7,23 @@ import {
   SLIDER_PUZZLE_SIZE,
 } from "~/routes/puzzles/sliding_puzzle/utils";
 
+export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
+  await prisma.puzzleSquare.deleteMany({ where: { userId } });
+  return initPuzzle().map(async (sq) => {
+    await prisma.puzzleSquare.create({
+      data: {
+        x: sq.position.x,
+        y: sq.position.y,
+        empty: sq.empty,
+        color: sq.color,
+        userId: userId,
+        correctX: sq.position.x,
+        correctY: sq.position.y,
+      },
+    });
+  });
+}
+
 export function getSquare({
   id,
 }: Pick<PuzzleSquare, "id"> & {
@@ -21,7 +38,15 @@ export function getSquare({
 export function getAllSquares({ userId }: Pick<PuzzleSquare, "userId">) {
   return prisma.puzzleSquare.findMany({
     where: { userId },
-    select: { id: true, x: true, y: true, color: true, empty: true },
+    select: {
+      id: true,
+      x: true,
+      y: true,
+      color: true,
+      empty: true,
+      correctX: true,
+      correctY: true,
+    },
     orderBy: { updatedAt: "desc" },
   });
 }
@@ -64,18 +89,9 @@ export function updateSquare({
   });
 }
 
-export async function resetPuzzle({ userId }: Pick<PuzzleSquare, "userId">) {
-  // TODO: Add user id on delete?
-  await prisma.puzzleSquare.deleteMany({});
-  return initPuzzle().map(async (sq) => {
-    await prisma.puzzleSquare.create({
-      data: {
-        x: sq.position.x,
-        y: sq.position.y,
-        empty: sq.empty,
-        color: sq.color,
-        userId: userId,
-      },
-    });
-  });
+export async function isPuzzleCompleted({
+  userId,
+}: Pick<PuzzleSquare, "userId">) {
+  const db_squares = await getAllSquares({ userId });
+  return db_squares.every((sq) => sq.x === sq.correctX && sq.y === sq.correctY);
 }

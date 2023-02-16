@@ -4,6 +4,7 @@ import { useOptionalUser } from "~/utils";
 
 export default function Index() {
   const user = useOptionalUser();
+  console.log({ user });
   return (
     <main className="relative min-h-screen bg-white sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
