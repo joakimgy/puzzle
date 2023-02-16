@@ -13,14 +13,19 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   return (
     <div className="border-1 grid grid-cols-3 grid-rows-3 gap-4">
       {puzzle.map((square) => (
+        <div className="h-44 w-44" key={`div-${square.id}`} />
+      ))}
+      {puzzle.map((square) => (
         <button
+          className={`absolute transition-transform`}
+          style={{ transform: getTranslation(square.position) }}
           key={square.id}
           onClick={() => {
             move(square);
           }}
         >
           {!square.empty && (
-            <p className={`p-10 ${square.color}`}>
+            <p className={`h-44 w-44 ${square.color}`}>
               {getLabel(square.correctPosision)}
             </p>
           )}
@@ -29,6 +34,10 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
     </div>
   );
 };
+
+function getTranslation(position: { x: number; y: number }) {
+  return `translate(${position.x * (11 + 1)}rem, ${position.y * (11 + 1)}rem)`;
+}
 
 function getLabel(position: { x: number; y: number }) {
   return `${position.y}, ${position.x}`;
