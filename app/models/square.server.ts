@@ -2,14 +2,26 @@ import type { User, PuzzleSquare } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 import type { Square } from "~/routes/puzzles/sliding_puzzle/utils";
-import {
-  initPuzzle,
-  SLIDER_PUZZLE_SIZE,
-} from "~/routes/puzzles/sliding_puzzle/utils";
+import { colors } from "~/routes/puzzles/sliding_puzzle/utils";
+import { SLIDER_PUZZLE_SIZE } from "~/routes/puzzles/sliding_puzzle/utils";
 
 export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
   await prisma.puzzleSquare.deleteMany({ where: { userId } });
-  return initPuzzle().map(async (sq) => {
+  const newPuzzle = Array.from(
+    Array(SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE).keys()
+  ).map((index) => {
+    const position = {
+      x: index % SLIDER_PUZZLE_SIZE,
+      y: Math.floor(index / SLIDER_PUZZLE_SIZE),
+    };
+    return {
+      position: position,
+      color: colors[index],
+      correct_position: position,
+      empty: index === SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE - 1,
+    };
+  });
+  return newPuzzle.map(async (sq) => {
     await prisma.puzzleSquare.create({
       data: {
         x: sq.position.x,
@@ -30,7 +42,15 @@ export function getSquare({
   userId: User["id"];
 }) {
   return prisma.puzzleSquare.findFirst({
-    select: { id: true, x: true, y: true, empty: true, color: true },
+    select: {
+      id: true,
+      x: true,
+      y: true,
+      empty: true,
+      color: true,
+      correctX: true,
+      correctY: true,
+    },
     where: { id },
   });
 }
@@ -56,6 +76,7 @@ export async function getPuzzle({ userId }: Pick<PuzzleSquare, "userId">) {
   const squares: Square[] = db_squares.map((sq) => {
     const square: Square = {
       position: { x: sq.x, y: sq.y },
+      correctPosision: { x: sq.correctX, y: sq.correctY },
       color: sq.color,
       empty: sq.empty,
       id: sq.id,

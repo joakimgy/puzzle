@@ -1,22 +1,5 @@
 export const SLIDER_PUZZLE_SIZE = 3;
 
-export function initPuzzle(): Omit<Square, "id">[] {
-  return Array.from(Array(SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE).keys()).map(
-    (index) => {
-      const position = {
-        x: index % SLIDER_PUZZLE_SIZE,
-        y: Math.floor(index / SLIDER_PUZZLE_SIZE),
-      };
-      return {
-        position: position,
-        color: colors[index],
-        correct_position: position,
-        empty: index === SLIDER_PUZZLE_SIZE,
-      };
-    }
-  );
-}
-
 export function isAdjacentToEmpty(square: Square, puzzle: Square[]) {
   if (square.empty) return false;
   const emptySquare = puzzle.find((p) => p.empty);
@@ -63,6 +46,7 @@ export function moveSquare(puzzle: Square[], square: Square): Square[] {
 
 export type Square = {
   position: { x: number; y: number };
+  correctPosision: { x: number; y: number };
   id: string;
   color: string;
   empty: boolean;

@@ -39,6 +39,7 @@ export async function action({ request }: ActionArgs) {
   if (!sq) return;
   const square: Square = {
     position: { x: sq.x, y: sq.y },
+    correctPosision: { x: sq.correctX, y: sq.correctY },
     empty: sq.empty,
     id: sq.id,
     color: sq.color,

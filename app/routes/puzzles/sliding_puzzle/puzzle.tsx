@@ -19,11 +19,19 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
             move(square);
           }}
         >
-          {!square.empty && <p className={`p-10 ${square.color}`}>X</p>}
+          {!square.empty && (
+            <p className={`p-10 ${square.color}`}>
+              {getLabel(square.correctPosision)}
+            </p>
+          )}
         </button>
       ))}
     </div>
   );
 };
+
+function getLabel(position: { x: number; y: number }) {
+  return `${position.y}, ${position.x}`;
+}
 
 export default SlidingPuzzle;
