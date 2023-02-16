@@ -1,10 +1,10 @@
-import type { User, Note, PuzzleSquare } from "@prisma/client";
+import type { User, PuzzleSquare } from "@prisma/client";
 
 import { prisma } from "~/db.server";
+import type { Square } from "~/routes/puzzles/sliding_puzzle/utils";
 import {
   initPuzzle,
   SLIDER_PUZZLE_SIZE,
-  Square,
 } from "~/routes/puzzles/sliding_puzzle/utils";
 
 export function getSquare({
@@ -13,7 +13,7 @@ export function getSquare({
   userId: User["id"];
 }) {
   return prisma.puzzleSquare.findFirst({
-    select: { id: true },
+    select: { id: true, x: true, y: true, empty: true, color: true },
     where: { id },
   });
 }

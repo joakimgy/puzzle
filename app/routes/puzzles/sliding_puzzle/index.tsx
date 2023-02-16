@@ -6,12 +6,13 @@ import type {
 } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getPuzzle, updateSquare } from "~/models/square.server";
+import { getPuzzle, updateSquare, getSquare } from "~/models/square.server";
 import { requireUserId } from "~/session.server";
 
 import { useUser } from "~/utils";
 import SlidingPuzzle from "./puzzle";
 import type { Square } from "./utils";
+import { isAdjacentToEmpty } from "./utils";
 
 type LoaderData = {
   puzzle: Square[];
@@ -23,16 +24,22 @@ export const loader: LoaderFunction = async ({ request }: LoaderArgs) => {
 };
 
 export async function action({ request }: ActionArgs) {
-  console.log("action!");
-
   const formData = await request.formData();
   const userId = await requireUserId(request);
-  console.log("Submitted: ", formData);
-
   const square_id = formData.get("square_id")?.toString();
   if (!square_id) return null;
-
+  const sq = await getSquare({ id: square_id, userId });
+  if (!sq) return;
+  const square: Square = {
+    position: { x: sq.x, y: sq.y },
+    empty: sq.empty,
+    id: sq.id,
+    color: sq.color,
+  };
   const puzzle = await getPuzzle({ userId });
+  const isAdjacent = isAdjacentToEmpty(square, puzzle);
+  if (!isAdjacent) return null;
+
   const emptyPos = puzzle.find((sq) => sq.empty);
   const clickedPos = puzzle.find((sq) => sq.id === square_id);
 

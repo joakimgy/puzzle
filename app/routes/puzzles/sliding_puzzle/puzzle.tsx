@@ -1,13 +1,10 @@
 import { useSubmit } from "@remix-run/react";
 import type { Square } from "./utils";
-import { isAdjacentToEmpty } from "./utils";
 
 const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   const submit = useSubmit();
 
   function move(square: Square) {
-    const isAdjacent = isAdjacentToEmpty(square, puzzle);
-    if (!isAdjacent) return;
     let formData = new FormData();
     formData.append("square_id", square.id);
     submit(formData, { method: "post", action: "/puzzles/sliding_puzzle" });
