@@ -1,4 +1,4 @@
-app = "remix-7eab"
+app = "puzzle-7eab"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = [ ]
