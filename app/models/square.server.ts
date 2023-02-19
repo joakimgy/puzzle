@@ -6,8 +6,8 @@ import { colors } from "~/routes/puzzles/sliding_puzzle/utils";
 import { SLIDER_PUZZLE_SIZE } from "~/routes/puzzles/sliding_puzzle/utils";
 
 export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
-  await prisma.puzzleSquare.deleteMany({ where: { userId } });
-  const newPuzzle = Array.from(
+  /** Generate puzzle */
+  const puzzle = Array.from(
     Array(SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE).keys()
   ).map((index) => {
     const position = {
@@ -21,7 +21,17 @@ export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
       empty: index === SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE - 1,
     };
   });
-  return newPuzzle.map(async (sq) => {
+  /** Randomize order */
+  const order = getShuffledArr(puzzle.map((_, i) => i));
+  console.log({ order });
+  const randomizedPuzzle = [...puzzle].map((p, i) => ({
+    ...p,
+    position: puzzle[order[i]].correct_position,
+  }));
+  /** Delete old puzzle */
+  await prisma.puzzleSquare.deleteMany({ where: { userId } });
+  /** Insert puzzle into  */
+  return randomizedPuzzle.map(async (sq) => {
     await prisma.puzzleSquare.create({
       data: {
         x: sq.position.x,
@@ -29,12 +39,20 @@ export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
         empty: sq.empty,
         color: sq.color,
         userId: userId,
-        correctX: sq.position.x,
-        correctY: sq.position.y,
+        correctX: sq.correct_position.x,
+        correctY: sq.correct_position.y,
       },
     });
   });
 }
+
+const getShuffledArr = <T>(arr: Array<T>): Array<T> => {
+  if (arr.length === 1) {
+    return arr;
+  }
+  const rand = Math.floor(Math.random() * arr.length);
+  return [arr[rand], ...getShuffledArr(arr.filter((_, i) => i != rand))];
+};
 
 export function getSquare({
   id,
@@ -100,7 +118,6 @@ export function updateSquare({
   // TODO: Add user id here?
   userId,
 }: Pick<PuzzleSquare, "id" | "x" | "y" | "userId">) {
-  console.log("Update square");
   return prisma.puzzleSquare.update({
     where: { id: id },
     data: {
