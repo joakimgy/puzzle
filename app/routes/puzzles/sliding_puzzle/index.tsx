@@ -4,13 +4,13 @@ import type {
   LoaderArgs,
   LoaderFunction,
 } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
 import {
+  createNewPuzzle,
   getPuzzle,
-  updateSquare,
   getSquare,
   isPuzzleCompleted,
+  updateSquare,
 } from "~/models/square.server";
 import { requireUserId } from "~/session.server";
 
@@ -25,9 +25,15 @@ type LoaderData = {
 };
 export const loader: LoaderFunction = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const puzzle = await getPuzzle({ userId });
-  const isCompleted = await isPuzzleCompleted({ userId });
-  return json({ puzzle, isCompleted });
+  let puzzle = await getPuzzle({ userId });
+  if (puzzle.length === 9) {
+    const isCompleted = await isPuzzleCompleted({ userId });
+    return json({ puzzle, isCompleted });
+  } else {
+    const puzzle = await createNewPuzzle({ userId });
+    const isCompleted = await isPuzzleCompleted({ userId });
+    return json({ puzzle, isCompleted });
+  }
 };
 
 export async function action({ request }: ActionArgs) {
