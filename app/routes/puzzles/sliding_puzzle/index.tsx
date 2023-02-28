@@ -26,7 +26,7 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   let puzzle = await getPuzzle({ userId });
-  if (puzzle.length === 9) {
+  if (puzzle.length > 0) {
     const isCompleted = await isPuzzleCompleted({ userId });
     return json({ puzzle, isCompleted });
   } else {
@@ -45,7 +45,7 @@ export async function action({ request }: ActionArgs) {
   if (!sq) return;
   const square: Square = {
     position: { x: sq.x, y: sq.y },
-    correctPosision: { x: sq.correctX, y: sq.correctY },
+    correctPosition: { x: sq.correctX, y: sq.correctY },
     empty: sq.empty,
     id: sq.id,
     color: sq.color,

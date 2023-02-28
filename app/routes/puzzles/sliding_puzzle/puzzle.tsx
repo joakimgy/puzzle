@@ -1,5 +1,6 @@
 import { useSubmit } from "@remix-run/react";
-import { SLIDER_PUZZLE_SIZE, Square } from "./utils";
+import type { Square } from "./utils";
+import { SLIDER_PUZZLE_SIZE } from "./utils";
 
 const imageResolution = 1000;
 const imageUrl = `https://images.unsplash.com/photo-1598214886806-c87b84b7078b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=${imageResolution}&q=80&h=${imageResolution}&q=80`;
@@ -18,6 +19,8 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   const heightRem = height / 4;
   const gapRem = 4;
   const percentageOffset = 100 / (SLIDER_PUZZLE_SIZE - 1);
+
+  puzzle.forEach((p) => console.log(p.correctPosition, p.empty));
 
   return (
     <div
@@ -43,15 +46,15 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
                   backgroundImage: `url(${imageUrl})`,
                   backgroundSize: `${heightRem * SLIDER_PUZZLE_SIZE}rem`,
                   backgroundPositionX: `${
-                    square.correctPosision.x * percentageOffset
+                    square.correctPosition.x * percentageOffset
                   }%`,
                   backgroundPositionY: `${
-                    square.correctPosision.y * percentageOffset
+                    square.correctPosition.y * percentageOffset
                   }%`,
                 }}
               />
               <p className={`h-44 w-44 ${square.color}`}>
-                {getLabel(square.correctPosision)}
+                {getLabel(square.correctPosition)}
               </p>
             </>
           )}

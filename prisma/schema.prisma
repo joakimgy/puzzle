@@ -14,9 +14,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password Password?
-  notes    Note[]
-  squares  PuzzleSquare[]
+  password          Password?
+  notes             Note[]
+  squares           PuzzleSquare[]
+  sliderPuzzleSize  Int
+
 }
 
 model Password {

@@ -2,32 +2,12 @@ import type { User, PuzzleSquare } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 import type { Square } from "~/routes/puzzles/sliding_puzzle/utils";
-import { colors } from "~/routes/puzzles/sliding_puzzle/utils";
+import { generatePuzzle } from "~/routes/puzzles/sliding_puzzle/utils";
 import { SLIDER_PUZZLE_SIZE } from "~/routes/puzzles/sliding_puzzle/utils";
 
 export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
   /** Generate puzzle */
-  const puzzle = Array.from(
-    Array(SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE).keys()
-  ).map((index) => {
-    const position = {
-      x: index % SLIDER_PUZZLE_SIZE,
-      y: Math.floor(index / SLIDER_PUZZLE_SIZE),
-    };
-    return {
-      position: position,
-      color: colors[index],
-      correct_position: position,
-      empty: index === SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE - 1,
-    };
-  });
-  /** Randomize order */
-  const order = getShuffledArr(puzzle.map((_, i) => i));
-  console.log({ order });
-  const randomizedPuzzle = [...puzzle].map((p, i) => ({
-    ...p,
-    position: puzzle[order[i]].correct_position,
-  }));
+  const randomizedPuzzle = generatePuzzle();
   /** Delete old puzzle */
   await prisma.puzzleSquare.deleteMany({ where: { userId } });
   /** Insert puzzle into  */
@@ -39,20 +19,12 @@ export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
         empty: sq.empty,
         color: sq.color,
         userId: userId,
-        correctX: sq.correct_position.x,
-        correctY: sq.correct_position.y,
+        correctX: sq.correctPosition.x,
+        correctY: sq.correctPosition.y,
       },
     });
   });
 }
-
-const getShuffledArr = <T>(arr: Array<T>): Array<T> => {
-  if (arr.length === 1) {
-    return arr;
-  }
-  const rand = Math.floor(Math.random() * arr.length);
-  return [arr[rand], ...getShuffledArr(arr.filter((_, i) => i != rand))];
-};
 
 export function getSquare({
   id,
@@ -94,7 +66,7 @@ export async function getPuzzle({ userId }: Pick<PuzzleSquare, "userId">) {
   const squares: Square[] = db_squares.map((sq) => {
     const square: Square = {
       position: { x: sq.x, y: sq.y },
-      correctPosision: { x: sq.correctX, y: sq.correctY },
+      correctPosition: { x: sq.correctX, y: sq.correctY },
       color: sq.color,
       empty: sq.empty,
       id: sq.id,
