@@ -15,8 +15,6 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
     submit(formData, { method: "post", action: "/puzzles/sliding_puzzle" });
   }
 
-  puzzle.forEach((sq) => console.log(sq.correctPosision, sq.empty));
-
   return (
     <div className="border-1 grid grid-cols-3 grid-rows-3 gap-4">
       {puzzle.map((square) => (
@@ -37,8 +35,8 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
                 className="absolute h-44 w-44"
                 style={{
                   backgroundImage: `url(${imageUrl})`,
-                  backgroundPositionX: square.correctPosision.x * widthHeight,
-                  backgroundPositionY: square.correctPosision.y * widthHeight,
+                  backgroundPositionX: `${square.correctPosision.x * 50}%`,
+                  backgroundPositionY: `${square.correctPosision.y * 50}%`,
                 }}
               />
               <p className={`h-44 w-44 ${square.color}`}>
