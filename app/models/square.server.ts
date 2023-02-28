@@ -17,7 +17,6 @@ export async function createNewPuzzle({ userId }: { userId: User["id"] }) {
         x: sq.position.x,
         y: sq.position.y,
         empty: sq.empty,
-        color: sq.color,
         userId: userId,
         correctX: sq.correctPosition.x,
         correctY: sq.correctPosition.y,
@@ -37,7 +36,6 @@ export function getSquare({
       x: true,
       y: true,
       empty: true,
-      color: true,
       correctX: true,
       correctY: true,
     },
@@ -52,7 +50,6 @@ export function getAllSquares({ userId }: Pick<PuzzleSquare, "userId">) {
       id: true,
       x: true,
       y: true,
-      color: true,
       empty: true,
       correctX: true,
       correctY: true,
@@ -67,7 +64,6 @@ export async function getPuzzle({ userId }: Pick<PuzzleSquare, "userId">) {
     const square: Square = {
       position: { x: sq.x, y: sq.y },
       correctPosition: { x: sq.correctX, y: sq.correctY },
-      color: sq.color,
       empty: sq.empty,
       id: sq.id,
     };

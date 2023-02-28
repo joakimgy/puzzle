@@ -1,4 +1,4 @@
-export const SLIDER_PUZZLE_SIZE = 3;
+export const SLIDER_PUZZLE_SIZE = 4;
 
 export function isAdjacentToEmpty(square: Square, puzzle: Square[]) {
   if (square.empty) return false;
@@ -21,6 +21,10 @@ export function isAdjacentToEmpty(square: Square, puzzle: Square[]) {
   );
 }
 
+export function count(position: { x: number; y: number }) {
+  return position.y * SLIDER_PUZZLE_SIZE + position.x;
+}
+
 export function moveSquare(puzzle: Square[], square: Square): Square[] {
   const emptySquareIndex = puzzle.findIndex((p) => p.empty);
   if (!emptySquareIndex) {
@@ -35,12 +39,7 @@ export function moveSquare(puzzle: Square[], square: Square): Square[] {
 
   newPuzzle[squareIndex] = { ...square, position: emptySquare.position };
   newPuzzle[emptySquareIndex] = { ...emptySquare, position: square.position };
-  newPuzzle.sort(
-    (a, b) =>
-      a.position.y * SLIDER_PUZZLE_SIZE +
-      a.position.x -
-      (b.position.y * SLIDER_PUZZLE_SIZE + b.position.x)
-  );
+  newPuzzle.sort((a, b) => count(a.position) - count(b.position));
   return newPuzzle;
 }
 
@@ -48,21 +47,8 @@ export type Square = {
   position: { x: number; y: number };
   correctPosition: { x: number; y: number };
   id: string;
-  color: string;
   empty: boolean;
 };
-
-export const colors = [
-  "bg-red-400",
-  "bg-green-400",
-  "bg-blue-400",
-  "bg-red-600",
-  "bg-green-600",
-  "bg-blue-600",
-  "bg-yellow-400",
-  "bg-purple-400",
-  "bg-pink-400",
-];
 
 function generatePuzzleSimple(): Omit<Square, "id">[] {
   const puzzle = Array.from(
@@ -74,7 +60,6 @@ function generatePuzzleSimple(): Omit<Square, "id">[] {
     };
     return {
       position: position,
-      color: colors[index],
       correctPosition: position,
       empty: index === SLIDER_PUZZLE_SIZE * SLIDER_PUZZLE_SIZE - 1,
     };
@@ -88,10 +73,15 @@ function generatePuzzleSimple(): Omit<Square, "id">[] {
   return randomizedPuzzle;
 }
 
-function countInversions(puzzle: Omit<Square, "id">[]) {
+/** Calculate if the puzzle is solvable by counting inversions */
+export function isSolvable(puzzle: Omit<Square, "id">[]): boolean {
   const order = puzzle
     .filter((piece) => !piece.empty)
-    .map((piece) => piece.position.y * SLIDER_PUZZLE_SIZE + piece.position.x);
+    .sort((a, b) => count(a.correctPosition) - count(b.correctPosition))
+    .map((piece) => count(piece.position));
+
+  const emptyRow = puzzle.find((p) => p.empty)?.position.y;
+  if (!emptyRow) throw new Error("Cant find row of empty tile");
 
   let inv_count = 0;
   for (let i = 0; i < order.length - 1; i++) {
@@ -99,15 +89,22 @@ function countInversions(puzzle: Omit<Square, "id">[]) {
       if (order[i] > order[j]) inv_count++;
     }
   }
-  return inv_count;
+
+  /** Different logic for odd/even-numbered height
+   * https://www.sitepoint.com/randomizing-sliding-puzzle-tiles/
+   */
+  if (SLIDER_PUZZLE_SIZE % 2 === 1) {
+    return inv_count % 2 === 0;
+  } else {
+    return (inv_count + SLIDER_PUZZLE_SIZE - (emptyRow + 1)) % 2 === 0;
+  }
 }
 
 export function generatePuzzle() {
   while (true) {
     const puzzle = generatePuzzleSimple();
-    const inversions = countInversions(puzzle);
-    console.log({ inversions });
-    if (inversions % 2 === 0) return puzzle;
+    const solvable = isSolvable(puzzle);
+    if (solvable) return puzzle;
   }
 }
 

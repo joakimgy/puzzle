@@ -16,23 +16,28 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
 
   // Tailwind sizes (1 = 0.25rem)
   const height = 44;
-  const heightRem = height / 4;
-  const gapRem = 4;
+  const gap = 4;
   const percentageOffset = 100 / (SLIDER_PUZZLE_SIZE - 1);
-
-  puzzle.forEach((p) => console.log(p.correctPosition, p.empty));
 
   return (
     <div
-      className={`border-1 grid grid-cols-${SLIDER_PUZZLE_SIZE} grid-rows-${SLIDER_PUZZLE_SIZE} gap-${gapRem}`}
+      className={"border-1 grid gap-4"}
+      style={{
+        gridTemplateColumns: `repeat(${SLIDER_PUZZLE_SIZE}, minmax(0, 1fr))`,
+      }}
     >
       {puzzle.map((square) => (
-        <div className={`h-${height} w-${height}`} key={`div-${square.id}`} />
+        <div className={`h-44 w-44 `} key={`div-${square.id}`} />
       ))}
       {puzzle.map((square) => (
         <button
           className={`absolute transition-transform`}
-          style={{ transform: getTranslation(square.position) }}
+          style={{
+            transform: getTranslation(
+              square.position,
+              (height + gap) / SLIDER_PUZZLE_SIZE
+            ),
+          }}
           key={square.id}
           onClick={() => {
             move(square);
@@ -41,10 +46,10 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
           {!square.empty && (
             <>
               <div
-                className={`absolute h-${height} w-${height}`}
+                className={`absolute h-44 w-44`}
                 style={{
                   backgroundImage: `url(${imageUrl})`,
-                  backgroundSize: `${heightRem * SLIDER_PUZZLE_SIZE}rem`,
+                  backgroundSize: `${(height / 4) * SLIDER_PUZZLE_SIZE}rem`,
                   backgroundPositionX: `${
                     square.correctPosition.x * percentageOffset
                   }%`,
@@ -53,8 +58,8 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
                   }%`,
                 }}
               />
-              <p className={`h-44 w-44 ${square.color}`}>
-                {getLabel(square.correctPosition)}
+              <p className="absolute h-44 w-44 text-white">
+                {square.correctPosition.y} {square.correctPosition.x}
               </p>
             </>
           )}
@@ -64,12 +69,16 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   );
 };
 
-function getTranslation(position: { x: number; y: number }) {
-  return `translate(${position.x * (11 + 1)}rem, ${position.y * (11 + 1)}rem)`;
-}
-
-function getLabel(position: { x: number; y: number }) {
-  return `${position.y}, ${position.x}`;
+function getTranslation(
+  position: {
+    x: number;
+    y: number;
+  },
+  tileSizeRem: number
+) {
+  return `translate(${position.x * tileSizeRem}rem, ${
+    position.y * tileSizeRem
+  }rem)`;
 }
 
 export default SlidingPuzzle;

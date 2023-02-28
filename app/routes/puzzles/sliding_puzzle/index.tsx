@@ -48,7 +48,6 @@ export async function action({ request }: ActionArgs) {
     correctPosition: { x: sq.correctX, y: sq.correctY },
     empty: sq.empty,
     id: sq.id,
-    color: sq.color,
   };
   const puzzle = await getPuzzle({ userId });
   const isAdjacent = isAdjacentToEmpty(square, puzzle);

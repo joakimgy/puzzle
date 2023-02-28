@@ -45,7 +45,6 @@ model PuzzleSquare {
   x     Int
   y     Int
   empty Boolean
-  color String
 
   correctX Int
   correctY Int
