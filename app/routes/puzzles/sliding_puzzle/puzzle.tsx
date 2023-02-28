@@ -1,5 +1,5 @@
 import { useSubmit } from "@remix-run/react";
-import type { Square } from "./utils";
+import { SLIDER_PUZZLE_SIZE, Square } from "./utils";
 
 const imageResolution = 1000;
 const imageUrl = `https://images.unsplash.com/photo-1598214886806-c87b84b7078b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=${imageResolution}&q=80&h=${imageResolution}&q=80`;
@@ -17,12 +17,11 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   const height = 44;
   const heightRem = height / 4;
   const gapRem = 4;
-  const tiles = 3;
-  const percentageOffset = 100 / (tiles - 1);
+  const percentageOffset = 100 / (SLIDER_PUZZLE_SIZE - 1);
 
   return (
     <div
-      className={`border-1 grid grid-cols-${tiles} grid-rows-${tiles} gap-${gapRem}`}
+      className={`border-1 grid grid-cols-${SLIDER_PUZZLE_SIZE} grid-rows-${SLIDER_PUZZLE_SIZE} gap-${gapRem}`}
     >
       {puzzle.map((square) => (
         <div className={`h-${height} w-${height}`} key={`div-${square.id}`} />
@@ -42,7 +41,7 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
                 className={`absolute h-${height} w-${height}`}
                 style={{
                   backgroundImage: `url(${imageUrl})`,
-                  backgroundSize: `${heightRem * tiles}rem`,
+                  backgroundSize: `${heightRem * SLIDER_PUZZLE_SIZE}rem`,
                   backgroundPositionX: `${
                     square.correctPosision.x * percentageOffset
                   }%`,
