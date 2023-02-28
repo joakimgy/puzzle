@@ -1,10 +1,8 @@
 import { useSubmit } from "@remix-run/react";
 import type { Square } from "./utils";
 
-const widthHeight = 176;
-const imageUrl = `https://images.unsplash.com/photo-1598214886806-c87b84b7078b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=${
-  widthHeight * 3
-}&q=80&h=${widthHeight * 3}&q=80`;
+const imageResolution = 1000;
+const imageUrl = `https://images.unsplash.com/photo-1598214886806-c87b84b7078b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=${imageResolution}&q=80&h=${imageResolution}&q=80`;
 
 const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
   const submit = useSubmit();
@@ -15,12 +13,21 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
     submit(formData, { method: "post", action: "/puzzles/sliding_puzzle" });
   }
 
+  // Tailwind sizes (1 = 0.25rem)
+  const height = 44;
+  const heightRem = height / 4;
+  const gapRem = 4;
+  const tiles = 3;
+  const percentageOffset = 100 / (tiles - 1);
+
   return (
-    <div className="border-1 grid grid-cols-3 grid-rows-3 gap-4">
+    <div
+      className={`border-1 grid grid-cols-${tiles} grid-rows-${tiles} gap-${gapRem}`}
+    >
       {puzzle.map((square) => (
-        <div className="h-44 w-44" key={`div-${square.id}`} />
+        <div className={`h-${height} w-${height}`} key={`div-${square.id}`} />
       ))}
-      {puzzle.map((square, index) => (
+      {puzzle.map((square) => (
         <button
           className={`absolute transition-transform`}
           style={{ transform: getTranslation(square.position) }}
@@ -32,11 +39,16 @@ const SlidingPuzzle = ({ puzzle }: { puzzle: Square[] }) => {
           {!square.empty && (
             <>
               <div
-                className="absolute h-44 w-44"
+                className={`absolute h-${height} w-${height}`}
                 style={{
                   backgroundImage: `url(${imageUrl})`,
-                  backgroundPositionX: `${square.correctPosision.x * 50}%`,
-                  backgroundPositionY: `${square.correctPosision.y * 50}%`,
+                  backgroundSize: `${heightRem * tiles}rem`,
+                  backgroundPositionX: `${
+                    square.correctPosision.x * percentageOffset
+                  }%`,
+                  backgroundPositionY: `${
+                    square.correctPosision.y * percentageOffset
+                  }%`,
                 }}
               />
               <p className={`h-44 w-44 ${square.color}`}>
